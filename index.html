@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Forêt Enchantée des Nombres - PFEQ Math 2e Cycle</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            950: '#04110b',
+                            900: '#0a2318',
+                            800: '#123927',
+                            700: '#1b543a',
+                            600: '#257451',
+                            500: '#2e9669',
+                            400: '#3fbc86',
+                            300: '#72e0b1',
+                            200: '#b2f2d5',
+                            100: '#e1faee',
+                        },
+                        magical: {
+                            gold: '#f59e0b',
+                            amber: '#d97706',
+                            glow: '#fef08a',
+                            violet: '#8b5cf6',
+                            purple: '#6d28d9'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.4)); }
+            50% { opacity: 0.8; filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.8)); }
+        }
+        @keyframes firefly {
+            0% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
+            50% { transform: translate(20px, -30px) scale(1.2); opacity: 0.9; }
+            100% { transform: translate(-10px, -60px) scale(0.8); opacity: 0.2; }
+        }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+        
+        .firefly-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #fef08a;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 12px 3px rgba(254, 240, 138, 0.8);
+            animation: firefly 8s ease-in-out infinite alternate;
+        }
+
+        .glass-panel {
+            background: rgba(18, 57, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(114, 224, 177, 0.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .glass-card {
+            background: rgba(10, 35, 24, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(63, 188, 134, 0.2);
+        }
+
+        .btn-magical {
+            background: linear-gradient(135deg, #2e9669 0%, #1b543a 100%);
+            border: 1px solid #72e0b1;
+            box-shadow: 0 4px 15px rgba(46, 150, 105, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-magical:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(114, 224, 177, 0.6);
+            background: linear-gradient(135deg, #3fbc86 0%, #257451 100%);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: 1px solid #fef08a;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(254, 240, 138, 0.7);
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            transform: scale(1.02);
+            border-color: #f59e0b;
+            background-color: rgba(37, 116, 81, 0.5);
+        }
+        .option-btn.selected {
+            border-color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-forest-950 text-slate-100 min-h-screen flex flex-col font-sans overflow-x-hidden relative selection:bg-forest-400 selection:text-forest-950">
+
+    <div id="fireflies-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- MAIN WRAPPER -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+
+        <!-- HEADER / NAVIGATION -->
+        <header class="w-full glass-panel border-b border-forest-600/30 px-4 py-3 sticky top-0 z-30">
+            <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-forest-700 border border-forest-400 flex items-center justify-center text-xl shadow-inner animate-float">
+                        🌲
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg text-emerald-300 leading-tight">
+                            La Forêt Enchantée <span class="text-amber-400 text-xs sm:text-sm font-semibold block sm:inline">PFEQ 2e Cycle</span>
+                        </h1>
+                        <p class="text-xs text-forest-200 hidden sm:block">Épreuve de Mathématiques (3e - 4e année)</p>
+                    </div>
+                </div>
+
+                <!-- GAME METRICS -->
+                <div id="header-stats" class="flex items-center gap-3 sm:gap-6 text-sm font-medium">
+                    <div class="flex items-center gap-1.5 bg-forest-900/80 px-3 py-1.5 rounded-full border border-forest-600/40">
+                        <span class="text-amber-400 text-base">⭐</span>
+                        <span id="score-display" class="font-bold text-amber-300">0 pts</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-forest-900/80 px-3 py-1.5 rounded-full border border-forest-600/40">
+                        <span class="text-emerald-400 text-base">✨</span>
+                        <span id="question-count-display" class="font-semibold text-emerald-200">1 / 20</span>
+                    </div>
+                    <button id="audio-toggle-btn" class="w-9 h-9 rounded-full bg-forest-800 border border-forest-500 flex items-center justify-center text-forest-200 hover:text-white hover:border-emerald-400 transition" title="Activer/Désactiver le son">
+                        🔊
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 flex flex-col justify-center">
+
+            <!-- INTRO SCREEN -->
+            <section id="screen-intro" class="glass-panel rounded-2xl p-6 sm:p-10 text-center max-w-2xl mx-auto shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                
+                <div class="inline-block p-4 rounded-full bg-forest-800/80 border border-emerald-400/40 mb-4 animate-float">
+                    <svg class="w-16 h-16 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-300 mb-3 tracking-wide">
+                    Le Grand Défi de Sylvanus
+                </h2>
+                <p class="text-forest-100 text-sm sm:text-base leading-relaxed mb-6 max-w-lg mx-auto">
+                    Aide Sylvanus, le sage de la forêt, à réveiller l'esprit des nombres! Réponds correctement aux 20 énigmes mathématiques sur les nombres naturels, le comptage par bonds et la valeur de position base 10.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left text-xs sm:text-sm">
+                    <div class="bg-forest-900/60 p-3 rounded-xl border border-forest-700/50 flex items-center gap-3">
+                        <span class="text-2xl">🎯</span>
+                        <div>
+                            <p class="font-bold text-emerald-300">20 Questions</p>
+                            <p class="text-forest-300">QCM & Réponses courtes</p>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900/60 p-3 rounded-xl border border-forest-700/50 flex items-center gap-3">
+                        <span class="text-2xl">💡</span>
+                        <div>
+                            <p class="font-bold text-amber-300">Indices Disponibles</p>
+                            <p class="text-forest-300">Aide visuelle & explications</p>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900/60 p-3 rounded-xl border border-forest-700/50 flex items-center gap-3">
+                        <span class="text-2xl">🏆</span>
+                        <div>
+                            <p class="font-bold text-emerald-300">3 Étoiles</p>
+                            <p class="text-forest-300">Rétroaction immédiate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="start-game-btn" class="btn-gold px-8 py-4 rounded-xl font-bold text-forest-950 text-lg w-full sm:w-auto shadow-lg hover:scale-105 active:scale-95 transition">
+                    🌲 Commencer la Quête
+                </button>
+            </section>
+
+            <section id="screen-game" class="hidden flex-col gap-5">
+                
+                <!-- PROGRESS BAR & MAP STEPS -->
+                <div class="glass-card rounded-xl p-4">
+                    <div class="flex justify-between items-center text-xs font-semibold text-emerald-200 mb-2">
+                        <span>Progression de la Quête</span>
+                        <span id="progress-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-forest-950 h-3 rounded-full overflow-hidden border border-forest-700 p-0.5">
+                        <div id="progress-bar-fill" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-full rounded-full transition-all duration-500 w-0"></div>
+                    </div>
+                    <div id="question-dots" class="flex justify-between items-center mt-3 gap-1 overflow-x-auto py-1">
+                        <!-- Dots populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- QUESTION CARD -->
+                <div class="glass-panel rounded-2xl p-5 sm:p-7 relative shadow-xl">
+                    <div class="flex items-center justify-between gap-2 mb-4 border-b border-forest-700/50 pb-3">
+                        <span id="question-tag" class="px-3 py-1 rounded-full text-xs font-bold bg-forest-800 text-amber-300 border border-amber-400/30">
+                            Énigme 1 sur 20
+                        </span>
+                        <span id="question-type-badge" class="text-xs text-forest-200 font-medium">
+                            Choix multiple
+                        </span>
+                    </div>
+
+                    <!-- QUESTION STATEMENT -->
+                    <h2 id="question-text" class="text-lg sm:text-xl font-bold text-slate-100 mb-4 leading-snug">
+                        Question text goes here...
+                    </h2>
+
+                    <!-- VISUAL AID / GRAPHIC CONTAINER -->
+                    <div id="visual-aid-container" class="my-4 p-4 bg-forest-950/80 rounded-xl border border-forest-700/60 min-h-[120px] flex items-center justify-center">
+                        <!-- Dynamic SVG graphics inserted here -->
+                    </div>
+
+                    <!-- ANSWER INTERFACE -->
+                    <div id="answer-container" class="mt-6">
+                        <!-- Dynamic inputs inserted here (QCM grid or Short Answer text input) -->
+                    </div>
+
+                    <!-- ACTION BAR -->
+                    <div class="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-forest-700/50">
+                        <button id="hint-btn" class="px-4 py-2.5 rounded-lg bg-forest-800/80 border border-forest-500/50 text-amber-300 hover:bg-forest-700 text-sm font-medium flex items-center gap-2 transition">
+                            <span>💡</span> Indice Magique
+                        </button>
+                        <button id="submit-btn" class="btn-magical px-6 py-2.5 rounded-lg text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                            Valider ma réponse ✨
+                        </button>
+                    </div>
+
+                    <!-- HINT BOX DISPLAY -->
+                    <div id="hint-box" class="hidden mt-4 p-4 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-sm animate-pulse-glow">
+                        <p class="font-bold flex items-center gap-2 mb-1 text-amber-300">
+                            <span>🧚‍♂️</span> Conseil de Sylvanus :
+                        </p>
+                        <p id="hint-text"></p>
+                    </div>
+                </div>
+
+                <!-- FEEDBACK MODAL / DRAWER -->
+                <div id="feedback-modal" class="hidden glass-panel rounded-2xl p-6 border-2 transition-all duration-300">
+                    <div id="feedback-header" class="flex items-center gap-3 text-lg font-bold mb-2">
+                        <!-- Icon + title inserted dynamically -->
+                    </div>
+                    <p id="feedback-explanation" class="text-forest-100 text-sm sm:text-base mb-4 leading-relaxed">
+                        <!-- Explanation inserted dynamically -->
+                    </p>
+                    <div class="flex justify-end">
+                        <button id="next-question-btn" class="btn-gold px-6 py-2.5 rounded-xl text-forest-950 font-bold text-sm flex items-center gap-2">
+                            Énigme Suivante ➡️
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="screen-summary" class="hidden glass-panel rounded-2xl p-6 sm:p-10 text-center max-w-3xl mx-auto shadow-2xl">
+                <div class="inline-block p-4 rounded-full bg-forest-800/90 border border-amber-400 mb-4 animate-float">
+                    <span id="summary-trophy" class="text-5xl">🏆</span>
+                </div>
+
+                <h2 class="text-3xl font-extrabold text-amber-300 mb-2">Quête Accomplie!</h2>
+                <p id="summary-subtitle" class="text-forest-200 text-sm sm:text-base mb-6">
+                    Tu as bravé les épreuves mathématiques de la Forêt Enchantée!
+                </p>
+
+                <!-- STARS DISPLAY -->
+                <div id="stars-container" class="flex justify-center gap-3 text-4xl mb-6">
+                    <span class="star-icon">⭐</span>
+                    <span class="star-icon">⭐</span>
+                    <span class="star-icon">⭐</span>
+                </div>
+
+                <!-- METRICS GRID -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-forest-900/80 p-4 rounded-xl border border-forest-700">
+                        <p class="text-xs text-forest-300 uppercase tracking-wider mb-1">Score Total</p>
+                        <p id="final-score" class="text-2xl font-black text-amber-300">0 pts</p>
+                    </div>
+                    <div class="bg-forest-900/80 p-4 rounded-xl border border-forest-700">
+                        <p class="text-xs text-forest-300 uppercase tracking-wider mb-1">Précision</p>
+                        <p id="final-accuracy" class="text-2xl font-black text-emerald-300">0%</p>
+                    </div>
+                    <div class="bg-forest-900/80 p-4 rounded-xl border border-forest-700 col-span-2 sm:col-span-1">
+                        <p class="text-xs text-forest-300 uppercase tracking-wider mb-1">Bonnes Réponses</p>
+                        <p id="final-correct-count" class="text-2xl font-black text-emerald-200">0 / 20</p>
+                    </div>
+                </div>
+
+                <!-- QUESTION REVIEW ACCORDION -->
+                <div class="text-left mb-8">
+                    <h3 class="font-bold text-amber-300 text-base mb-3 flex items-center gap-2">
+                        📜 Revue de tes réponses :
+                    </h3>
+                    <div id="review-list" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        <!-- Inserted dynamically -->
+                    </div>
+                </div>
+
+                <button id="restart-game-btn" class="btn-gold px-8 py-3.5 rounded-xl font-bold text-forest-950 text-base shadow-lg hover:scale-105 active:scale-95 transition">
+                    🔄 Recommencer l'Aventure
+                </button>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="w-full text-center py-4 text-xs text-forest-300 border-t border-forest-800/40">
+            Élaboré pour le Programme de Formation de l'École Québécoise (PFEQ) • Maths 2e Cycle
+        </footer>
+    </div>
+
+    <script>
+        /* ----------------------------------------------------
+           1. DATASET: 20 PFEQ QUESTIONS (2e Cycle)
+           ---------------------------------------------------- */
+        const questionsData = [
+            {
+                id: 1,
+                type: "qcm",
+                question: "Quel nombre est pair?",
+                options: ["98", "45", "63", "71"],
+                correct: "98",
+                hint: "Un nombre pair se termine toujours par 0, 2, 4, 6 ou 8.",
+                explanation: "98 se termine par 8, c'est donc un nombre pair.",
+                visualType: "even_odd",
+                number: 98
+            },
+            {
+                id: 2,
+                type: "qcm",
+                question: "Quel nombre est impair?",
+                options: ["97", "84", "12", "60"],
+                correct: "97",
+                hint: "Un nombre impair se termine par 1, 3, 5, 7 ou 9.",
+                explanation: "97 se termine par 7, c'est donc un nombre impair.",
+                visualType: "even_odd",
+                number: 97
+            },
+            {
+                id: 3,
+                type: "qcm",
+                question: "Combien y a-t-il de dizaines dans le nombre 347?",
+                options: ["34", "4", "3", "347"],
+                correct: "34",
+                hint: "Attention! On cherche le nombre TOTAL de dizaines dans tout le nombre (347 ÷ 10 = 34 dizaines entières), pas uniquement le chiffre à la position des dizaines.",
+                explanation: "Dans 347, il y a 34 dizaines entières (34 × 10 = 340) et 7 unités.",
+                visualType: "place_value_total",
+                number: 347
+            },
+            {
+                id: 4,
+                type: "short",
+                question: "Quelle est la valeur du chiffre 7 dans le nombre 275?",
+                correct: ["70", "7 dizaines"],
+                hint: "Le chiffre 7 est au rang des dizaines. Quelle quantité représente-t-il?",
+                explanation: "Le 7 est situé à la position des dizaines, sa valeur est donc 7 × 10 = 70.",
+                visualType: "place_value_chart",
+                number: 275,
+                highlightDigit: "7"
+            },
+            {
+                id: 5,
+                type: "qcm",
+                question: "Quel nombre est plus grand que 456?",
+                options: ["466", "450", "400", "399"],
+                correct: "466",
+                hint: "Compare les centaines, puis les dizaines, puis les unités.",
+                explanation: "466 a 6 dizaines alors que 456 en a 5. Donc 466 > 456.",
+                visualType: "comparison",
+                number: 456
+            },
+            {
+                id: 6,
+                type: "short",
+                question: "Combien y a-t-il de centaines dans le nombre 842?",
+                correct: ["8", "8 centaines"],
+                hint: "Combien de paquets de 100 peut-on former au total dans 842?",
+                explanation: "Dans 842, il y a 8 centaines complètes (8 × 100 = 800).",
+                visualType: "base10",
+                number: 842
+            },
+            {
+                id: 7,
+                type: "short",
+                question: "Quel est le plus petit nombre à trois chiffres?",
+                correct: ["100"],
+                hint: "C'est le premier nombre qui possède des centaines (juste après 99).",
+                explanation: "100 est le tout premier nombre composé de 3 chiffres (1 centaine, 0 dizaine, 0 unité).",
+                visualType: "number_line",
+                number: 100
+            },
+            {
+                id: 8,
+                type: "qcm",
+                question: "Écris le nombre qui a 6 centaines, 3 dizaines et 8 unités.",
+                options: ["638", "683", "368", "836"],
+                correct: "638",
+                hint: "Additionne les valeurs : 6 centaines (600) + 3 dizaines (30) + 8 unités (8).",
+                explanation: "600 + 30 + 8 = 638.",
+                visualType: "base10_compose",
+                c: 6, d: 3, u: 8
+            },
+            {
+                id: 9,
+                type: "short",
+                question: "Quel est le chiffre à la position des dizaines dans le nombre 529?",
+                correct: ["2"],
+                hint: "Regarde la deuxième position à partir de la droite (Centaines | Dizaines | Unités).",
+                explanation: "Dans 529 : 5 est le chiffre des centaines, 2 est le chiffre des dizaines, et 9 est le chiffre des unités.",
+                visualType: "place_value_chart",
+                number: 529,
+                highlightDigit: "2"
+            },
+            {
+                id: 10,
+                type: "short",
+                question: "Quel nombre vient juste avant 500?",
+                correct: ["499"],
+                hint: "Enlève 1 à 500 (500 - 1 = ?).",
+                explanation: "Le nombre qui précède immédiatement 500 est 499.",
+                visualType: "number_line",
+                number: 500
+            },
+            {
+                id: 11,
+                type: "qcm",
+                question: "Quel est le plus grand nombre à deux chiffres?",
+                options: ["99", "100", "90", "89"],
+                correct: "99",
+                hint: "C'est le tout dernier nombre avant 100 (qui a 3 chiffres).",
+                explanation: "99 est le plus grand nombre à deux chiffres.",
+                visualType: "number_line",
+                number: 99
+            },
+            {
+                id: 12,
+                type: "qcm",
+                question: "Combien y a-t-il de nombres pairs entre 20 et 30?",
+                options: ["4", "5", "6", "3"],
+                correct: "4",
+                hint: "Les nombres situés strictement ENTRE 20 et 30 sont : 21, 22, 23, 24, 25, 26, 27, 28, 29. Lesquels sont pairs?",
+                explanation: "Les nombres pairs entre 20 et 30 sont : 22, 24, 26 et 28. Il y en a donc 4.",
+                visualType: "list_even",
+                min: 20, max: 30
+            },
+            {
+                id: 13,
+                type: "qcm",
+                question: "Quel nombre est composé de 7 centaines, 0 dizaine et 3 unités?",
+                options: ["703", "730", "307", "73"],
+                correct: "703",
+                hint: "Calcule : 700 + 0 + 3 = ?",
+                explanation: "7 centaines (700) + 0 dizaine (0) + 3 unités (3) = 703.",
+                visualType: "base10_compose",
+                c: 7, d: 0, u: 3
+            },
+            {
+                id: 14,
+                type: "qcm",
+                question: "Quel est le nombre qui a 4 de plus que 398?",
+                options: ["402", "394", "400", "404"],
+                correct: "402",
+                hint: "Fais l'addition : 398 + 4.",
+                explanation: "398 + 2 = 400, puis 400 + 2 = 402.",
+                visualType: "addition_steps",
+                base: 398, add: 4
+            },
+            {
+                id: 15,
+                type: "short",
+                question: "Quel est le nombre naturel qui vient juste après 699?",
+                correct: ["700"],
+                hint: "Ajoute 1 à 699 (699 + 1 = ?).",
+                explanation: "Le nombre naturel qui suit immédiatement 699 est 700.",
+                visualType: "number_line",
+                number: 699
+            },
+            {
+                id: 16,
+                type: "qcm",
+                question: "Quel est le plus petit nombre impair à trois chiffres?",
+                options: ["101", "100", "103", "999"],
+                correct: "101",
+                hint: "Le plus petit nombre à 3 chiffres est 100 (pair). Quel est le premier nombre impair qui vient tout de suite après?",
+                explanation: "100 est le plus petit à 3 chiffres (pair). 101 est le plus petit nombre impair à 3 chiffres.",
+                visualType: "even_odd",
+                number: 101
+            },
+            {
+                id: 17,
+                type: "short",
+                question: "Quelle est la valeur du chiffre 8 dans le nombre 483?",
+                correct: ["80", "8 dizaines"],
+                hint: "Le chiffre 8 est placé au rang des dizaines.",
+                explanation: "Dans 483, le chiffre 8 est à la position des dizaines : sa valeur est 80.",
+                visualType: "place_value_chart",
+                number: 483,
+                highlightDigit: "8"
+            },
+            {
+                id: 18,
+                type: "short",
+                question: "Combien y a-t-il de nombres naturels entre 45 et 50?",
+                correct: ["4"],
+                hint: "Compte les nombres compris strictement après 45 et avant 50 : 46, 47, 48, 49.",
+                explanation: "Les nombres situés entre 45 et 50 sont 46, 47, 48 et 49. Il y en a 4.",
+                visualType: "count_between",
+                start: 45, end: 50
+            },
+            {
+                id: 19,
+                type: "short",
+                question: "Quel est le nombre qui a 2 centaines de moins que 734?",
+                correct: ["534"],
+                hint: "Enlève 2 au chiffre des centaines (7 - 2 = 5).",
+                explanation: "734 - 200 = 534.",
+                visualType: "subtraction_hundreds",
+                base: 734, sub: 200
+            },
+            {
+                id: 20,
+                type: "qcm",
+                question: "Quel nombre est à la fois plus grand que 350 et plus petit que 360?",
+                options: ["355", "345", "365", "350"],
+                correct: "355",
+                hint: "Cherche le nombre qui est compris entre 350 et 360 (350 < ? < 360).",
+                explanation: "355 est bien situé entre 350 et 360.",
+                visualType: "range_check",
+                min: 350, max: 360
+            }
+        ];
+
+        /* ----------------------------------------------------
+           2. APP STATE
+           ---------------------------------------------------- */
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let audioEnabled = true;
+        let userAnswersHistory = [];
+
+        /* ----------------------------------------------------
+           3. WEB AUDIO SYNTHESIZER (100% Reliable Offline)
+           ---------------------------------------------------- */
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    // Ascending major chord (C5, E5, G5, C6)
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.08);
+                        osc.stop(now + idx * 0.08 + 0.3);
+                    });
+                } else if (type === 'wrong') {
+                    // Gentle low warning sound
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'victory') {
+                    // Magical fanfare
+                    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                        gain.gain.setValueAtTime(0.25, now + idx * 0.12);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.5);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.12);
+                        osc.stop(now + idx * 0.12 + 0.5);
+                    });
+                }
+            } catch (e) {
+                console.warn('Audio playback error:', e);
+            }
+        }
+
+        /* ----------------------------------------------------
+           4. SVG GRAPHICS GENERATOR (PFEQ Visual Aids)
+           ---------------------------------------------------- */
+        function generateVisualAid(q) {
+            const container = document.getElementById('visual-aid-container');
+            container.innerHTML = '';
+
+            let svgHtml = '';
+
+            switch (q.visualType) {
+                case 'place_value_chart':
+                    const nStr = String(q.number).padStart(3, '0');
+                    const hl = q.highlightDigit;
+                    svgHtml = `
+                        <div class="w-full max-w-sm">
+                            <div class="text-center text-xs font-semibold text-emerald-300 mb-1">Tableau de Numération</div>
+                            <div class="grid grid-cols-3 border-2 border-emerald-500 rounded-lg overflow-hidden text-center bg-forest-900">
+                                <div class="p-2 border-r border-emerald-600 bg-emerald-950/50">
+                                    <div class="text-xs font-bold text-emerald-400">Centaines (C)</div>
+                                    <div class="text-2xl font-black ${hl === nStr[0] ? 'text-amber-400 animate-pulse' : 'text-slate-100'}">${nStr[0]}</div>
+                                </div>
+                                <div class="p-2 border-r border-emerald-600 bg-amber-950/30">
+                                    <div class="text-xs font-bold text-amber-400">Dizaines (D)</div>
+                                    <div class="text-2xl font-black ${hl === nStr[1] ? 'text-amber-400 animate-pulse' : 'text-slate-100'}">${nStr[1]}</div>
+                                </div>
+                                <div class="p-2 bg-purple-950/30">
+                                    <div class="text-xs font-bold text-purple-300">Unités (U)</div>
+                                    <div class="text-2xl font-black ${hl === nStr[2] ? 'text-amber-400 animate-pulse' : 'text-slate-100'}">${nStr[2]}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'base10_compose':
+                case 'base10':
+                    let c = q.c || Math.floor((q.number || 0) / 100);
+                    let d = q.d !== undefined ? q.d : Math.floor(((q.number || 0) % 100) / 10);
+                    let u = q.u !== undefined ? q.u : ((q.number || 0) % 10);
+                    
+                    svgHtml = `
+                        <div class="flex flex-wrap items-center justify-center gap-4 text-xs">
+                            ${c > 0 ? `
+                                <div class="flex flex-col items-center gap-1">
+                                    <div class="flex flex-wrap gap-1 max-w-[120px] justify-center">
+                                        ${Array(c).fill().map(() => `<div class="w-7 h-7 bg-emerald-600 border border-emerald-300 rounded-sm shadow" title="Centaine (100)"></div>`).join('')}
+                                    </div>
+                                    <span class="text-emerald-300 font-bold">${c} centaine${c>1?'s':''}</span>
+                                </div>
+                            ` : ''}
+                            ${d > 0 ? `
+                                <div class="flex flex-col items-center gap-1">
+                                    <div class="flex gap-1">
+                                        ${Array(d).fill().map(() => `<div class="w-2 h-8 bg-amber-500 border border-amber-300 rounded-xs" title="Dizaine (10)"></div>`).join('')}
+                                    </div>
+                                    <span class="text-amber-400 font-bold">${d} dizaine${d>1?'s':''}</span>
+                                </div>
+                            ` : ''}
+                            ${u > 0 ? `
+                                <div class="flex flex-col items-center gap-1">
+                                    <div class="flex flex-wrap gap-1 max-w-[60px] justify-center">
+                                        ${Array(u).fill().map(() => `<div class="w-2.5 h-2.5 bg-purple-400 border border-purple-200 rounded-xs" title="Unité (1)"></div>`).join('')}
+                                    </div>
+                                    <span class="text-purple-300 font-bold">${u} unité${u>1?'s':''}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    break;
+
+                case 'number_line':
+                    const val = q.number;
+                    const min = val - 2;
+                    const max = val + 2;
+                    svgHtml = `
+                        <div class="w-full max-w-md py-2">
+                            <div class="text-center text-xs text-forest-200 mb-2">Droite Numérique</div>
+                            <svg class="w-full h-16" viewBox="0 0 300 50">
+                                <line x1="20" y1="25" x2="280" y2="25" stroke="#3fbc86" stroke-width="3"/>
+                                <polygon points="280,20 290,25 280,30" fill="#3fbc86" />
+                                <polygon points="20,20 10,25 20,30" fill="#3fbc86" />
+                                ${[0, 1, 2, 3, 4].map(i => {
+                                    const num = min + i;
+                                    const x = 40 + i * 55;
+                                    const isTarget = num === val;
+                                    return `
+                                        <line x1="${x}" y1="18" x2="${x}" y2="32" stroke="${isTarget ? '#f59e0b' : '#3fbc86'}" stroke-width="${isTarget ? 3 : 2}"/>
+                                        <text x="${x}" y="45" text-anchor="middle" fill="${isTarget ? '#f59e0b' : '#b2f2d5'}" font-size="11" font-weight="${isTarget?'bold':'normal'}">
+                                            ${num}
+                                        </text>
+                                    `;
+                                }).join('')}
+                            </svg>
+                        </div>
+                    `;
+                    break;
+
+                case 'even_odd':
+                    const numVal = q.number;
+                    const lastDigit = numVal % 10;
+                    svgHtml = `
+                        <div class="text-center p-2">
+                            <div class="text-3xl font-black text-amber-300 mb-1 tracking-wider">${numVal}</div>
+                            <div class="text-xs text-forest-200">
+                                Le dernier chiffre est <span class="text-amber-400 font-bold text-base px-1.5 py-0.5 rounded bg-forest-900 border border-amber-500/40">${lastDigit}</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'place_value_total':
+                    svgHtml = `
+                        <div class="text-center p-2">
+                            <div class="text-3xl font-extrabold text-emerald-300 mb-1">347</div>
+                            <div class="text-xs text-forest-200">
+                                347 = (34 × 10) + 7
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'count_between':
+                case 'list_even':
+                default:
+                    svgHtml = `
+                        <div class="flex items-center justify-center gap-2 text-forest-200">
+                            <span class="text-2xl">🌲</span>
+                            <span class="text-sm italic">Analyse bien la question ci-dessus...</span>
+                        </div>
+                    `;
+                    break;
+            }
+
+            container.innerHTML = svgHtml;
+        }
+
+        /* ----------------------------------------------------
+           5. GAME CONTROL & UI RENDERING
+           ---------------------------------------------------- */
+        function initApp() {
+            // Generate ambient fireflies
+            const ffContainer = document.getElementById('fireflies-container');
+            for (let i = 0; i < 15; i++) {
+                const ff = document.createElement('div');
+                ff.className = 'firefly-particle';
+                ff.style.left = `${Math.random() * 100}%`;
+                ff.style.top = `${Math.random() * 100}%`;
+                ff.style.animationDelay = `${Math.random() * 5}s`;
+                ff.style.animationDuration = `${6 + Math.random() * 6}s`;
+                ffContainer.appendChild(ff);
+            }
+
+            // Event Listeners
+            document.getElementById('start-game-btn').addEventListener('click', startGame);
+            document.getElementById('restart-game-btn').addEventListener('click', restartGame);
+            document.getElementById('audio-toggle-btn').addEventListener('click', toggleAudio);
+            document.getElementById('hint-btn').addEventListener('click', showHint);
+            document.getElementById('submit-btn').addEventListener('click', validateAnswer);
+            document.getElementById('next-question-btn').addEventListener('click', nextQuestion);
+
+            renderDots();
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('audio-toggle-btn');
+            btn.textContent = audioEnabled ? '🔊' : '🔇';
+            playSound('click');
+        }
+
+        function renderDots() {
+            const dotsContainer = document.getElementById('question-dots');
+            dotsContainer.innerHTML = '';
+            questionsData.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.id = `dot-${idx}`;
+                dot.className = `w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all border ${
+                    idx === currentQuestionIndex 
+                        ? 'bg-amber-400 border-amber-200 scale-125' 
+                        : 'bg-forest-900 border-forest-600'
+                }`;
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        function startGame() {
+            playSound('click');
+            document.getElementById('screen-intro').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-game').classList.add('flex');
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswersHistory = [];
+            updateHeaderStats();
+            loadQuestion();
+        }
+
+        function restartGame() {
+            playSound('click');
+            document.getElementById('screen-summary').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-game').classList.add('flex');
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswersHistory = [];
+            updateHeaderStats();
+            loadQuestion();
+        }
+
+        function updateHeaderStats() {
+            document.getElementById('score-display').textContent = `${score} pts`;
+            document.getElementById('question-count-display').textContent = `${currentQuestionIndex + 1} / ${questionsData.length}`;
+            
+            const pct = Math.round((currentQuestionIndex / questionsData.length) * 100);
+            document.getElementById('progress-percentage').textContent = `${pct}%`;
+            document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+
+            // Update dot highlights
+            questionsData.forEach((_, idx) => {
+                const dot = document.getElementById(`dot-${idx}`);
+                if (!dot) return;
+                if (idx < currentQuestionIndex) {
+                    const history = userAnswersHistory[idx];
+                    dot.className = `w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all ${
+                        history && history.isCorrect ? 'bg-emerald-400 border-emerald-200' : 'bg-red-400 border-red-200'
+                    }`;
+                } else if (idx === currentQuestionIndex) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all bg-amber-400 border-amber-200 scale-125';
+                } else {
+                    dot.className = 'w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all bg-forest-900 border-forest-600';
+                }
+            });
+        }
+
+        function loadQuestion() {
+            selectedOption = null;
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('feedback-modal').classList.add('hidden');
+            document.getElementById('submit-btn').disabled = false;
+
+            const q = questionsData[currentQuestionIndex];
+
+            document.getElementById('question-tag').textContent = `Énigme ${q.id} sur 20`;
+            document.getElementById('question-type-badge').textContent = q.type === 'qcm' ? 'Choix multiple' : 'Réponse numérique';
+            document.getElementById('question-text').textContent = q.question;
+
+            generateVisualAid(q);
+
+            // Answer interface
+            const ansContainer = document.getElementById('answer-container');
+            ansContainer.innerHTML = '';
+
+            if (q.type === 'qcm') {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+
+                q.options.forEach((opt) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn glass-card p-4 rounded-xl border text-left font-bold text-slate-100 flex items-center justify-between';
+                    btn.innerHTML = `
+                        <span>${opt}</span>
+                        <span class="w-5 h-5 rounded-full border border-forest-400 flex items-center justify-center text-xs text-transparent option-check">✓</span>
+                    `;
+                    btn.addEventListener('click', () => {
+                        playSound('click');
+                        document.querySelectorAll('.option-btn').forEach(b => {
+                            b.classList.remove('selected');
+                            b.querySelector('.option-check').classList.add('text-transparent');
+                            b.querySelector('.option-check').classList.remove('text-amber-300');
+                        });
+                        btn.classList.add('selected');
+                        btn.querySelector('.option-check').classList.remove('text-transparent');
+                        btn.querySelector('.option-check').classList.add('text-amber-300');
+                        selectedOption = opt;
+                    });
+                    grid.appendChild(btn);
+                });
+                ansContainer.appendChild(grid);
+            } else {
+                // Short answer numerical input
+                const wrap = document.createElement('div');
+                wrap.className = 'flex flex-col gap-3 max-w-sm mx-auto';
+                wrap.innerHTML = `
+                    <label class="text-xs text-forest-200 font-semibold">Inscris ta réponse ci-dessous :</label>
+                    <input type="text" id="short-answer-input" placeholder="Ex: 70" class="w-full px-4 py-3 rounded-xl bg-forest-950 border-2 border-forest-500 text-amber-300 text-xl font-bold text-center focus:outline-none focus:border-amber-400 transition shadow-inner" />
+                `;
+                ansContainer.appendChild(wrap);
+
+                // Auto submit on Enter
+                setTimeout(() => {
+                    const input = document.getElementById('short-answer-input');
+                    if (input) {
+                        input.focus();
+                        input.addEventListener('keyup', (e) => {
+                            if (e.key === 'Enter') validateAnswer();
+                        });
+                    }
+                }, 100);
+            }
+
+            updateHeaderStats();
+        }
+
+        function showHint() {
+            playSound('click');
+            const q = questionsData[currentQuestionIndex];
+            const hintBox = document.getElementById('hint-box');
+            document.getElementById('hint-text').textContent = q.hint;
+            hintBox.classList.remove('hidden');
+        }
+
+        /* ----------------------------------------------------
+           6. ANSWER VALIDATION (100% Robust Equivalence)
+           ---------------------------------------------------- */
+        function validateAnswer() {
+            const q = questionsData[currentQuestionIndex];
+            let userAns = '';
+
+            if (q.type === 'qcm') {
+                if (!selectedOption) {
+                    showTemporaryMessage('SVP Choisis une réponse avant de valider! 🌲');
+                    return;
+                }
+                userAns = selectedOption;
+            } else {
+                const input = document.getElementById('short-answer-input');
+                if (!input || !input.value.trim()) {
+                    showTemporaryMessage('SVP Écris une réponse avant de valider! 🌲');
+                    return;
+                }
+                userAns = input.value.trim();
+            }
+
+            // Disable submit to prevent double-click
+            document.getElementById('submit-btn').disabled = true;
+
+            // Strict equivalence checking
+            let isCorrect = false;
+            if (q.type === 'qcm') {
+                isCorrect = (userAns.trim().toLowerCase() === q.correct.trim().toLowerCase());
+            } else {
+                const normUser = userAns.trim().toLowerCase().replace(/\s+/g, '');
+                if (Array.isArray(q.correct)) {
+                    isCorrect = q.correct.some(c => c.trim().toLowerCase().replace(/\s+/g, '') === normUser);
+                } else {
+                    isCorrect = (q.correct.trim().toLowerCase().replace(/\s+/g, '') === normUser);
+                }
+            }
+
+            if (isCorrect) {
+                score += 50;
+                playSound('correct');
+            } else {
+                playSound('wrong');
+            }
+
+            // Save to history
+            userAnswersHistory.push({
+                questionId: q.id,
+                questionText: q.question,
+                userAnswer: userAns,
+                correctAnswer: Array.isArray(q.correct) ? q.correct[0] : q.correct,
+                isCorrect: isCorrect,
+                explanation: q.explanation
+            });
+
+            // Show feedback modal
+            showFeedbackModal(isCorrect, q);
+        }
+
+        function showTemporaryMessage(msg) {
+            const hintBox = document.getElementById('hint-box');
+            document.getElementById('hint-text').textContent = msg;
+            hintBox.classList.remove('hidden');
+        }
+
+        function showFeedbackModal(isCorrect, q) {
+            const modal = document.getElementById('feedback-modal');
+            const header = document.getElementById('feedback-header');
+            const exp = document.getElementById('feedback-explanation');
+
+            modal.classList.remove('hidden');
+
+            if (isCorrect) {
+                modal.className = 'glass-panel rounded-2xl p-6 border-2 border-emerald-400 bg-emerald-950/40 text-emerald-100 shadow-2xl animate-pulse-glow';
+                header.innerHTML = `<span class="text-2xl">🎉</span> <span class="text-emerald-300">Excellente Réponse! (+50 pts)</span>`;
+                exp.textContent = q.explanation;
+            } else {
+                modal.className = 'glass-panel rounded-2xl p-6 border-2 border-amber-500 bg-amber-950/40 text-amber-100 shadow-2xl';
+                header.innerHTML = `<span class="text-2xl">🌱</span> <span class="text-amber-300">Pas tout à fait...</span>`;
+                exp.innerHTML = `La bonne réponse était : <strong class="text-amber-200">${Array.isArray(q.correct) ? q.correct[0] : q.correct}</strong>.<br/><br/>${q.explanation}`;
+            }
+
+            modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questionsData.length) {
+                loadQuestion();
+            } else {
+                showFinalSummary();
+            }
+        }
+
+        /* ----------------------------------------------------
+           7. FINAL SUMMARY & RESULTS REPORT
+           ---------------------------------------------------- */
+        function showFinalSummary() {
+            playSound('victory');
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('flex');
+            document.getElementById('screen-summary').classList.remove('hidden');
+
+            const correctCount = userAnswersHistory.filter(h => h.isCorrect).length;
+            const accuracy = Math.round((correctCount / questionsData.length) * 100);
+
+            document.getElementById('final-score').textContent = `${score} pts`;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('final-correct-count').textContent = `${correctCount} / 20`;
+
+            // Stars Logic
+            const starsContainer = document.getElementById('stars-container');
+            if (accuracy >= 80) {
+                starsContainer.innerHTML = '⭐ ⭐ ⭐';
+                document.getElementById('summary-subtitle').textContent = "Incroyable! Tu es un Maître Sage des Nombres!";
+            } else if (accuracy >= 50) {
+                starsContainer.innerHTML = '⭐ ⭐ ⚪';
+                document.getElementById('summary-subtitle').textContent = "Bien joué! La magie de la forêt renaît grâce à toi!";
+            } else {
+                starsContainer.innerHTML = '⭐ ⚪ ⚪';
+                document.getElementById('summary-subtitle').textContent = "Beau travail! Continue de t'entraîner pour maîtriser la forêt!";
+            }
+
+            // Review List
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+
+            userAnswersHistory.forEach((h, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border text-xs sm:text-sm flex flex-col gap-1 ${
+                    h.isCorrect ? 'bg-emerald-950/40 border-emerald-600/40 text-emerald-100' : 'bg-red-950/40 border-red-600/40 text-red-100'
+                }`;
+                item.innerHTML = `
+                    <div class="flex items-center justify-between font-bold">
+                        <span>Énigme ${idx + 1}: ${h.questionText}</span>
+                        <span>${h.isCorrect ? '✅ Reussi' : '❌ À revoir'}</span>
+                    </div>
+                    <div class="text-xs opacity-90">
+                        Ta réponse : <strong>${h.userAnswer}</strong> | Correct : <strong>${h.correctAnswer}</strong>
+                    </div>
+                `;
+                reviewList.appendChild(item);
+            });
+        }
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
